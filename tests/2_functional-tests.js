@@ -7,6 +7,7 @@ chai.use(chaiHttp);
 
 suite('Functional Tests', function () {
 
+    let _id = '';
     // POST handler Test
     test("Create an issue with every field: POST", function (done) {
         chai
@@ -20,6 +21,7 @@ suite('Functional Tests', function () {
                 "status_text": "In QA"
             })
             .end(function (err, res) {
+                _id = res.body._id;
                 assert.equal(res.status, 201, "Response status should be 200");
                 assert.property(res.body, "_id", "the response must include an _id");
                 assert.strictEqual(res.body.issue_title, "Fix error in posting data", "issue_title must be Fix error in posting data");
@@ -188,4 +190,43 @@ suite('Functional Tests', function () {
             })
     });
     // delete functions test
+    test("Delete an issue: DELETE", function (done) {
+        chai
+            .request(server)
+            .delete("/api/issues/apitest")
+            .send({
+                "_id": _id
+            })
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body._id, _id, "_id must be the same");
+                assert.strictEqual(res.body.result, "successfully deleted", "result property must be equal to successfully deleted");
+                done();
+            })
+    });
+    test("Delete an issue with an invalid _id: DELETE", function (done) {
+        chai
+            .request(server)
+            .delete("/api/issues/apitest")
+            .send({
+                "_id": "636eb5de3a"
+            })
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body._id, "636eb5de3a", "_id must be the same");
+                assert.strictEqual(res.body.error, "could not delete", "result property must be equal to could not delete");
+                done();
+            })
+    });
+    test("Delete an issue with missing _id: DELETE", function (done) {
+        chai
+            .request(server)
+            .delete("/api/issues/apitest")
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body.error, "missing _id");
+                done();
+            })
+    });
+
 });
