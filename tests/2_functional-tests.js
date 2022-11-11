@@ -63,6 +63,56 @@ suite('Functional Tests', function () {
                 done();
             })
     });
-
+    // GET functions Test 
+    test("View issues on a project: GET", function (done) {
+        chai
+            .request(server)
+            .get("/api/issues/apitest")
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.isArray(res.body, "The response must be an array of issues");
+                done();
+            })
+    });
+    test("View issues on a project with one filter: GET", function (done) {
+        chai
+            .request(server)
+            .get("/api/issues/apitest?issue_title=driver issue")
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.deepEqual(res.body[0], {
+                    "_id": "636e807fbdb9a02e05e704e4",
+                    "issue_title": "driver issue",
+                    "issue_text": "sound unavailable in the laptop",
+                    "created_by": "ilyas", "created_on": "2022-11-11T17:03:59.880Z",
+                    "updated_on": "2022-11-11T17:03:59.880Z",
+                    "assigned_to": "",
+                    "status_text": "",
+                    "open": true
+                });
+                done();
+            })
+    });
+    test("View issues on a project with multiple filters: GET", function (done) {
+        chai
+            .request(server)
+            .get("/api/issues/apitest?issue_title=windows update&open=false")
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.deepEqual(res.body[0], {
+                    "_id": "636e82a9c930377c14cd001c",
+                    "issue_title": "windows update",
+                    "issue_text": "windows 8.0 need some updates",
+                    "created_by": "ilyas",
+                    "created_on": "2022-11-11T17:13:13.342Z",
+                    "updated_on": "2022-11-11T17:13:39.756Z",
+                    "assigned_to": "ilyas",
+                    "status_text": "processed ",
+                    "open": false
+                });
+                done();
+            })
+    });
+    // PUT functions test
 
 });
