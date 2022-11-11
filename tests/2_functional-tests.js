@@ -185,7 +185,7 @@ suite('Functional Tests', function () {
             .end(function (err, res) {
                 assert.equal(res.status, 200, "Response status should be 200");
                 assert.strictEqual(res.body._id, "67646677", "_id must be the some")
-                assert.strictEqual(res.body.error, "could not update");
+                assert.strictEqual(res.body.error, "no update field(s) sent");
                 done();
             })
     });

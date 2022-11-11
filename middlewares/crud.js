@@ -52,20 +52,25 @@ async function listOfIssues(project, query, myDataBase, done) {
 
 async function updateIssue(arguments, myDataBase, done) {
     try {
-        let updates = arguments;
+        let updates = { ...arguments };
+        if (Object.keys(updates).length == 1) {
+            done(null, { error: 'no update field(s) sent', '_id': arguments._id });
+        }
         filterParameters(updates);
+
         let data = await myDataBase.findOne({
             _id: updates._id,
         }, { projection: { project: 0, created_on: 0, updated_on: 0 } });
+        if (data == null)
+            throw new Error("can't update the document!!");
         if (!("open" in updates))
             delete data["open"];
-        if (Object.keys(data).some((e) => e in updates && e != '_id')) {
-            let update = await myDataBase.findOneAndUpdate({ _id: updates["_id"] }, { $set: { ...updates, updated_on: new Date() } }, { returnDocument: 'after' });
-            done(null, { result: 'successfully updated', '_id': update.value._id });
-        }
-        else {
-            done(null, { error: 'no update field(s) sent', '_id': arguments._id });
-        }
+
+        let update = await myDataBase.findOneAndUpdate({ _id: updates["_id"] }, { $set: { ...updates, updated_on: new Date() } }, { returnDocument: 'after' });
+        if (update.value == null)
+            throw new Error("can't update the document!!");
+
+        done(null, { result: 'successfully updated', '_id': update.value._id });
     }
     catch (e) {
         done({ error: 'could not update', '_id': arguments._id });
