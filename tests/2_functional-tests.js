@@ -100,19 +100,92 @@ suite('Functional Tests', function () {
             .end(function (err, res) {
                 assert.equal(res.status, 200, "Response status should be 200");
                 assert.deepEqual(res.body[0], {
-                    "_id": "636e82a9c930377c14cd001c",
+                    "_id": "636e88a940eb227f76998e57",
                     "issue_title": "windows update",
                     "issue_text": "windows 8.0 need some updates",
                     "created_by": "ilyas",
-                    "created_on": "2022-11-11T17:13:13.342Z",
-                    "updated_on": "2022-11-11T17:13:39.756Z",
+                    "created_on": "2022-11-11T17:38:49.495Z",
+                    "updated_on": "2022-11-11T17:39:02.393Z",
                     "assigned_to": "ilyas",
-                    "status_text": "processed ",
+                    "status_text": "processed",
                     "open": false
                 });
                 done();
             })
     });
     // PUT functions test
-
+    test("Update one field on an issue: PUT", function (done) {
+        chai
+            .request(server)
+            .put("/api/issues/apitest")
+            .send({
+                "_id": "636e82a9c930377c14cd001c",
+                "issue_title": "install c++ packges"
+            })
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body._id, "636e82a9c930377c14cd001c", "_id must be the same");
+                assert.strictEqual(res.body.result, "successfully updated", "result property must be equal to successfully updated");
+                done();
+            })
+    });
+    test("Update multiple fields on an issue: PUT", function (done) {
+        chai
+            .request(server)
+            .put("/api/issues/apitest")
+            .send({
+                "_id": "636e82a9c930377c14cd001c",
+                "issue_title": "install c++ packges",
+                "issue_text": "install composer",
+                "created_by": "ilyas",
+                "assigned_to": "ilyas",
+                "status_text": "processed",
+            })
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body._id, "636e82a9c930377c14cd001c", "_id must be the same");
+                assert.strictEqual(res.body.result, "successfully updated", "result property must be equal to successfully updated");
+                done();
+            })
+    });
+    test("Update an issue with missing _id: PUT", function (done) {
+        chai
+            .request(server)
+            .put("/api/issues/apitest")
+            .send({})
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body.error, "missing _id");
+                done();
+            })
+    });
+    test("Update an issue with no fields to update: PUT", function (done) {
+        chai
+            .request(server)
+            .put("/api/issues/apitest")
+            .send({
+                "_id": "636e82a9c930377c14cd001c"
+            })
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body._id, "636e82a9c930377c14cd001c", "_id must be the some")
+                assert.strictEqual(res.body.error, "no update field(s) sent");
+                done();
+            })
+    });
+    test("Update an issue with an invalid _id: PUT", function (done) {
+        chai
+            .request(server)
+            .put("/api/issues/apitest")
+            .send({
+                "_id": "67646677"
+            })
+            .end(function (err, res) {
+                assert.equal(res.status, 200, "Response status should be 200");
+                assert.strictEqual(res.body._id, "67646677", "_id must be the some")
+                assert.strictEqual(res.body.error, "could not update");
+                done();
+            })
+    });
+    // delete functions test
 });

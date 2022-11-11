@@ -57,13 +57,10 @@ async function updateIssue(arguments, myDataBase, done) {
         let data = await myDataBase.findOne({
             _id: updates._id,
         }, { projection: { project: 0, created_on: 0, updated_on: 0 } });
-        console.log(data)
         if (!("open" in updates))
             delete data["open"];
-        if (Object.keys(data).some((e) => e in updates)) {
+        if (Object.keys(data).some((e) => e in updates && e != '_id')) {
             let update = await myDataBase.findOneAndUpdate({ _id: updates["_id"] }, { $set: { ...updates, updated_on: new Date() } }, { returnDocument: 'after' });
-            console.log(update.value);
-
             done(null, { result: 'successfully updated', '_id': update.value._id });
         }
         else {
